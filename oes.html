@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Online Exam System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(270deg, #a0c3ff, #c3ecf7, #bce0ff);
+      background-size: 600% 600%;
+      animation: gradientShift 15s ease infinite;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    nav {
+      background-color: rgba(0, 123, 255, 0.85);
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+    }
+
+    nav ul li {
+      color: white;
+      cursor: pointer;
+      font-size: 18px;
+      transition: transform 0.2s ease;
+    }
+
+    nav ul li:hover {
+      text-decoration: underline;
+      transform: scale(1.1);
+    }
+
+    .content-section {
+      display: none;
+      padding: 40px 20px;
+      text-align: center;
+      flex: 1;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .content-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1, h2 {
+      margin-bottom: 20px;
+      color: #222;
+    }
+
+    p {
+      font-size: 18px;
+      color: #444;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 8px;
+      width: 200px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+
+    #quiz-container {
+      margin: auto;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      animation: fadeIn 0.7s ease;
+    }
+
+    .option-label {
+      margin: 12px 0;
+      background-color: #e9f2ff;
+      padding: 15px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      font-size: 16px;
+      text-align: left;
+      transition: all 0.3s ease;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .option-label:hover {
+      background-color: #d0e7ff;
+      border-color: #007bff;
+      transform: translateY(-2px);
+    }
+
+    .option-label.selected {
+      background-color: #d0e7ff;
+      border-color: #007bff;
+      font-weight: bold;
+    }
+
+    footer {
+      background: rgba(0, 123, 255, 0.9);
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <ul>
+      <li onclick="showSection('home')">Home</li>
+      <li onclick="showSection('test')">Test</li>
+      <li onclick="showSection('results')">Results</li>
+      <li onclick="showSection('login')">Login</li>
+      <li onclick="showSection('register')">Register</li>
+    </ul>
+  </nav>
+
+  <!-- Home -->
+  <section id="home" class="content-section active">
+    <h1>Welcome to the Online Examination System</h1>
+    <p>Login or register to take the test and view your results.</p>
+    <button onclick="showSection('login')">Get Started</button>
+  </section>
+
+  <!-- Test -->
+  <section id="test" class="content-section">
+    <h2>Test</h2>
+    <div id="quiz-container">
+      <h3 id="question">Question text</h3>
+      <div id="options"></div>
+      <button onclick="nextQuestion()">Next</button>
+      <button onclick="submitQuiz()" id="submitBtn" style="display:none;">Submit</button>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section id="results" class="content-section">
+    <h2>Your Results</h2>
+    <p id="score">No test taken yet.</p>
+  </section>
+
+  <!-- Login -->
+  <section id="login" class="content-section">
+    <h2>Login</h2>
+    <input type="text" id="loginUser" placeholder="Username"><br>
+    <input type="password" id="loginPass" placeholder="Password"><br>
+    <button onclick="login()">Login</button>
+    <p id="loginMessage"></p>
+  </section>
+
+  <!-- Register -->
+  <section id="register" class="content-section">
+    <h2>Register</h2>
+    <input type="text" id="registerUser" placeholder="Username"><br>
+    <input type="password" id="registerPass" placeholder="Password"><br>
+    <button onclick="register()">Register</button>
+    <p id="registerMessage"></p>
+  </section>
+
+  <footer>
+    © 2025 Online Exam System | All rights reserved.
+  </footer>
+
+  <script>
+    const questions = [
+      {
+        question: "What does CSS stand for?",
+        options: ["Cascading Style Sheets", "Creative Style System", "Computer Styled Sheets", "Colorful Style Sheet"],
+        answer: "Cascading Style Sheets"
+      },
+      {
+        question: "Which company developed Java?",
+        options: ["Microsoft", "Sun Microsystems", "Apple", "Google"],
+        answer: "Sun Microsystems"
+      },
+      {
+        question: "What does CPU stand for?",
+        options: ["Central Processing Unit", "Computer Personal Unit", "Central Programming Unit", "Control Processing Unit"],
+        answer: "Central Processing Unit"
+      }
+    ];
+
+    let users = {};
+    let currentUser = null;
+    let currentQuestion = 0;
+    let score = 0;
+
+    function showSection(id) {
+      document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      if (id === 'test') {
+        if (!currentUser) {
+          alert("Please login to start the test.");
+          showSection('login');
+        } else {
+          startQuiz();
+        }
+      }
+      if (id === 'results' && currentUser) {
+        document.getElementById("score").textContent = `User: ${currentUser} | Score: ${users[currentUser].score || 0} / ${questions.length}`;
+      }
+    }
+
+    function startQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      document.getElementById("question").textContent = q.question;
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
+
+      q.options.forEach((opt) => {
+        const label = document.createElement("div");
+        label.className = "option-label";
+        label.setAttribute("data-value", opt);
+        label.textContent = opt;
+        label.addEventListener("click", function () {
+          document.querySelectorAll('.option-label').forEach(el => el.classList.remove('selected'));
+          label.classList.add('selected');
+        });
+        optionsDiv.appendChild(label);
+      });
+
+      document.getElementById("submitBtn").style.display =
+        currentQuestion === questions.length - 1 ? "inline" : "none";
+    }
+
+    function nextQuestion() {
+      const selected = document.querySelector('.option-label.selected');
+      if (!selected) {
+        alert("Please select an answer.");
+        return;
+      }
+
+      if (selected.getAttribute("data-value") === questions[currentQuestion].answer) {
+        score++;
+      }
+
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        showQuestion();
+      }
+    }
+
+    function submitQuiz() {
+      const selected = document.querySelector('.option-label.selected');
+      if (selected && selected.getAttribute("data-value") === questions[currentQuestion].answer) {
+        score++;
+      }
+
+      users[currentUser].score = score;
+      document.getElementById("quiz-container").innerHTML = `
+        <h3>Test Completed</h3>
+        <p>Your Score: ${score} / ${questions.length}</p>
+      `;
+    }
+
+    function login() {
+      const user = document.getElementById("loginUser").value;
+      const pass = document.getElementById("loginPass").value;
+
+      if (users[user] && users[user].password === pass) {
+        currentUser = user;
+        document.getElementById("loginMessage").textContent = `Welcome, ${user}`;
+        showSection('home');
+      } else {
+        document.getElementById("loginMessage").textContent = "Invalid username or password";
+      }
+    }
+
+    function register() {
+      const user = document.getElementById("registerUser").value;
+      const pass = document.getElementById("registerPass").value;
+
+      if (!user || !pass) {
+        document.getElementById("registerMessage").textContent = "Please fill both fields.";
+        return;
+      }
+
+      if (users[user]) {
+        document.getElementById("registerMessage").textContent = "Username already exists.";
+      } else {
+        users[user] = { password: pass, score: 0 };
+        document.getElementById("registerMessage").textContent = "Registered successfully!";
+      }
+    }
+  </script>
+</body>
+</html>
